@@ -1,0 +1,57 @@
+#coding=utf-8
+import csv
+import xlwt
+import sys
+reload(sys)
+sys.setdefaultencoding('gbk')
+def dict_f(filename):
+    dict_data = {}
+    with open(filename, 'r') as df:
+        infile=df.readlines()
+        dict_data = {}
+        for kv in infile:
+            userquary=kv.strip('\n').split(',')[0]
+            hkust=kv.strip('\n').split(',')[4]
+            hiticrc=kv.strip('\n').split(',')[3]
+            beifen=kv.strip('\n').split(',')[2]
+            dict_data.setdefault(userquary,{})['hkust']=hkust
+            dict_data.setdefault(userquary,{})['beifen']=beifen
+            dict_data.setdefault(userquary,{})['hiticrc']=hiticrc
+    return dict_data
+result1=dict_f("C:\Users\Administrator\Desktop\standard.csv")
+result2=dict_f("C:\Users\Administrator\Desktop\user_query_std_question.GBK2.csv")
+wbk = xlwt.Workbook(encoding='utf-8')
+sheet = wbk.add_sheet('sheet 1', cell_overwrite_ok=True)
+style0 = xlwt.easyxf('pattern: pattern solid, fore_colour red;')
+row = 0
+col = 0
+#sheet.write(0,col,key2,style0)
+#sheet.write(row,col,key2.decode('gbk'))
+for key1 in result2:
+    row += 1
+    col=0
+    sheet.write(0,0,'user_query')
+    sheet.write(row,col,key1.decode('gbk'))
+    for key2 in result2[key1]:
+        # key1.decode("gbk"),key2.decode("gbk"),result2[key1][key2].decode("gbk"),
+        if key1 in result1:
+            if key2 in result1[key1]:
+                if result2[key1][key2] == result1[key1][key2]:
+                    re1= key1,key2,result2[key1][key2],'1'
+                    re11=str(re1)
+                    col += 1
+                    sheet.write(0,col,key2)
+                    sheet.write(row,col,result1[key1][key2].decode('gbk'),style0)
+                    col += 1
+                    sheet.write(0,col,key2)
+                    sheet.write(row,col,"1")
+                else:
+                    re2= key1,key2,result2[key1][key2],'0'
+                    re22=str(re2)
+                    col += 1
+                    sheet.write(0,col,key2)
+                    sheet.write(row,col,result2[key1][key2].decode('gbk'))
+                    col += 1
+                    sheet.write(0,col,key2)
+                    sheet.write(row,col,"0")
+wbk.save('marked.xls')
